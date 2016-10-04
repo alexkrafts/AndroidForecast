@@ -2,26 +2,20 @@ package com.example.username.forecast;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by username on 10/3/2016.
  */
 public class Item {
-    private Guid guid;
-
-    private String pubDate;
-
-    private String title;
-
-    private Forecast[] forecast;
-
-    private Condition condition;
-
-    private String description;
-
-    private String link;
-
+    public Guid guid;
+    public String pubDate;
+    public String title;
+    public List<Forecast> forecast;
+    public Condition condition;
+    public String description;
+    public String link;
     @SerializedName("long")
-    private String longValue;
-
-    private String lat;
+    public String longValue;
+    public String lat;
 }
