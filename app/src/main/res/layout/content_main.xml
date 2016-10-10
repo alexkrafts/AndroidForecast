@@ -10,10 +10,13 @@
     tools:showIn="@layout/activity_main">
 
     <ListView
+
         android:id="@+id/listMainView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" >
     </ListView>
+
+
 
 
 </android.support.v4.widget.NestedScrollView>

@@ -1,10 +1,16 @@
 package com.example.username.forecast;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.*;
 import android.location.Location;
 import android.os.Build;
@@ -14,24 +20,21 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -62,13 +65,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 getForecast();
             }
         });
-        FloatingActionButton back = (FloatingActionButton) findViewById(R.id.bkgnd);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getBackground();
-            }
-        });
+
     }
 
     private void getBackground() {
@@ -83,7 +80,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         @Override
                         public void onResponse(Call<PhotoSearchResponse> call, Response<PhotoSearchResponse> response) {
 
-                            Photo src = response.body().getQuery().getResults().getPhoto()[2];
+                            Random r = new Random();
+                            Photo[] list = response.body().getQuery().getResults().getPhoto();
+                            Photo src = list[r.nextInt(list.length)];
                             Bitmap bmp = null;
                             try {
                                 bmp = new PhotoLoader().execute(src).get();
@@ -93,11 +92,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                                 e.printStackTrace();
                             }
                             BitmapDrawable ob = new BitmapDrawable(getResources(), bmp);
-                            ob.setGravity(Gravity.CENTER|Gravity.LEFT|Gravity.CLIP_HORIZONTAL);
+//                            ob.setGravity(Gravity.CENTER|Gravity.LEFT|Gravity.CLIP_HORIZONTAL);
+                            ImageView iv = (ImageView) findViewById(R.id.imageView);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                 Animation fadeIn = AnimationUtils.loadAnimation(local, R.anim.fade_in);
-                                listView.setBackground(ob);
-                                listView.startAnimation(fadeIn);
+                                iv.setImageDrawable(ob);
+                                iv.startAnimation(fadeIn);
+                                startMoving(ob);
                             }
                         }
 
@@ -109,6 +110,79 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    private static final int RightToLeft = 1;
+    private static final int LeftToRight = 2;
+    private static final int DURATION = 500;
+
+    private ValueAnimator mCurrentAnimator;
+    private final Matrix mMatrix = new Matrix();
+    private ImageView mImageView;
+    private float mScaleFactor;
+    private int mDirection = RightToLeft;
+    private RectF mDisplayRect = new RectF();
+
+    private void startMoving(final Drawable drawable) {
+        mImageView = (ImageView) findViewById(R.id.imageView);
+
+        mImageView.post(new Runnable() {
+            @Override
+            public void run() {
+                mScaleFactor = (float)  mImageView.getHeight() / (float) drawable.getIntrinsicHeight();
+                mMatrix.postScale(mScaleFactor, mScaleFactor);
+                mImageView.setImageMatrix(mMatrix);
+                animate();
+            }
+        });
+    }
+    private void animate() {
+        updateDisplayRect();
+        if(mDirection == RightToLeft) {
+            animate(mDisplayRect.left, mDisplayRect.left - (mDisplayRect.right - mImageView.getWidth()));
+        } else {
+            animate(mDisplayRect.left, 0.0f);
+        }
+    }
+
+    private void animate(float from, float to) {
+        mCurrentAnimator = ValueAnimator.ofFloat(from, to);
+        mCurrentAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (Float) animation.getAnimatedValue();
+
+                mMatrix.reset();
+                mMatrix.postScale(mScaleFactor, mScaleFactor);
+                mMatrix.postTranslate(value, 0);
+
+                mImageView.setImageMatrix(mMatrix);
+
+            }
+        });
+        mCurrentAnimator.setDuration(DURATION);
+        mCurrentAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if(mDirection == RightToLeft)
+                    mDirection = LeftToRight;
+                else
+                    mDirection = RightToLeft;
+
+                animate();
+            }
+        });
+        mCurrentAnimator.setDuration(35000);
+        mCurrentAnimator.start();
+    }
+
+    private void updateDisplayRect() {
+        try {
+            mDisplayRect.set(0, 0, mImageView.getDrawable().getIntrinsicWidth(), mImageView.getDrawable().getIntrinsicHeight());
+            mMatrix.mapRect(mDisplayRect);
+        }
+        catch (Exception e){
+
         }
     }
 
@@ -124,10 +198,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 return;
             }
         }
+        Toast.makeText(local, "Gps access granted", Toast.LENGTH_LONG);
         _location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (_location!=null && _location.getAccuracy()<100)
         {
             getBackground();
+            getForecast();
+
         }
 
         lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);

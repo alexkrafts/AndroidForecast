@@ -12,6 +12,7 @@
     <TextView
         android:id="@+id/text_date"
         android:text="some date"
+        style="@style/CodeFont"
         android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,6 +20,7 @@
     <TextView
         android:id="@+id/text_day"
         android:text="DAY"
+        style="@style/CodeFont"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/text_date"
