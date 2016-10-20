@@ -5,16 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:background="@color/transparent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.username.forecast.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <ListView
-
+    <android.support.v7.widget.RecyclerView
+        android:background="@color/transparent"
+        android:layout_marginTop="30dp"
+        android:paddingBottom="80dip"
+        android:clipToPadding="false"
         android:id="@+id/listMainView"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:layout_height="wrap_content"
+        android:scrollbarStyle="outsideOverlay">
+    </android.support.v7.widget.RecyclerView>
 
 
 

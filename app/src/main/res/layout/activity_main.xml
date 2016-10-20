@@ -5,14 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@android:color/transparent"
     tools:context="com.example.username.forecast.MainActivity">
+
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:scaleType="matrix"
+        android:background="@color/transparent"
         android:layout_height="match_parent" />
-    <include layout="@layout/content_main" />
+
+        <include layout="@layout/content_main" />
+
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -24,6 +30,22 @@
         app:srcCompat="@android:drawable/ic_dialog_email" />
 
 
+    <me.itangqi.waveloadingview.WaveLoadingView
+        android:id="@+id/waveLoadingView"
+        android:layout_width="207dp"
+        app:wlv_shapeType="square"
+        android:layout_height="300dp"
+        android:layout_gravity="center"
+        app:wlv_progressValue="10"
+        android:background="#90aaaaaa"
+        app:wlv_waveColor="#50aafaff"
+        app:wlv_titleBottomColor="@android:color/white"
+        app:wlv_titleCenterColor="@android:color/white"
+        app:wlv_titleTopColor="@android:color/white"
+        app:wlv_titleBottom="Location"
+        app:wlv_titleCenter="Image"
+        app:wlv_titleTop="Go!"
 
+        />
 
 </android.support.design.widget.CoordinatorLayout>

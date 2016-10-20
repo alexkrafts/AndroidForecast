@@ -13,7 +13,7 @@ import com.example.username.forecast.R;
 /**
  * Created by username on 10/12/2016.
  */
-public class AnimatorClass {
+public class Animator {
     private static final int RightToLeft = 1;
     private static final int LeftToRight = 2;
     private static final int DURATION = 500;
@@ -25,10 +25,10 @@ public class AnimatorClass {
     private int mDirection = RightToLeft;
     private RectF mDisplayRect = new RectF();
 
-    public AnimatorClass(View imageView){
+    public Animator(View imageView){
         mImageView = (ImageView) imageView;
     }
-    private void startMoving(final Drawable drawable) {
+    public void startMoving(final Drawable drawable) {
 
         mImageView.post(new Runnable() {
             @Override
@@ -82,6 +82,8 @@ public class AnimatorClass {
     }
 
     private void updateDisplayRect() {
+        if (mImageView==null || mImageView.getDrawable()==null)
+            return;
         mDisplayRect.set(0, 0, mImageView.getDrawable().getIntrinsicWidth(), mImageView.getDrawable().getIntrinsicHeight());
         mMatrix.mapRect(mDisplayRect);
     }
